@@ -7,6 +7,8 @@ use App\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Image;
+use Storage;
 use Yajra\Datatables\Datatables;
 
 class EmployeeController extends Controller
@@ -18,7 +20,6 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        
 
         return view('employee.index');
     }
@@ -27,31 +28,38 @@ class EmployeeController extends Controller
         if ($request->ajax()) {
             // $data = Employee::join('designations', 'employees.desig_id', '=', 'designations.id')
             // ->select(['employees.empl_id', 'employees.name', 'employees.email', 'employees.image', 'designations.designation']);
-            $data=Employee::with('designation', 'designation')->get();
-            
+            $data = Employee::with('designation', 'designation')->get();
+
             return Datatables::of($data)
-                    ->addColumn('designation', function($row){
-                        return $row->designation->designation;       
-                    })
-                    ->addColumn('image', function($row){
-                        
-                        if (($row->image!=NULL))
-                        $status= '<img class="rounded-circle" src="theme/img/undraw_profile.svg" alt="...">';
-                        else
-                        $status= '<img class="rounded-circle" src="theme/img/undraw_profile.svg" alt="...">';
-                        return $status;
-            
-                    })
-                    ->addColumn('action', function($row){
-                        
-                           $btn = '<a class="btn btn-info btn-sm" href="'. route('employee.show', $row->empl_id) .'">Show</a>
-                           <a href="'. route('employee.edit', $row->empl_id) .'" class="edit btn btn-primary btn-sm">edit</a>
-                           <a href="javascript:void(0)" class="edit btn btn-danger btn-sm">Delete</a>';
-     
-                            return $btn;
-                    })
-                    ->rawColumns(['image','action'])
-                    ->make(true);
+                ->addColumn('designation', function ($row) {
+                    return $row->designation->designation;
+                })
+                ->addColumn('image', function ($row) {
+
+                    if (($row->image != null)) {
+                        $status = '<img class="rounded-circle" height="50" width="50"  src="' . asset('storage/images/' . $row->image) . '" alt="...">';
+                    } else {
+                        $status = '<img class="rounded-circle" src="theme/img/undraw_profile.svg" alt="...">';
+                    }
+
+                    return $status;
+
+                })
+                ->addColumn('action', function ($row) {
+
+                    $btn = '<a class="btn btn-info btn-sm" href="' . route('employee.show', $row->empl_id) . '">Show</a>
+                           <a href="' . route('employee.edit', $row->empl_id) . '" class="edit btn btn-primary btn-sm">edit</a>
+                           <form action="' . route('employee.destroy', $row->empl_id) . ') }}" method="POST">
+                            ' . csrf_field() . '
+                            ' . method_field("DELETE") . '
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm(\'Are You Sure Want to Delete?\')">Delete</a>
+                            </form>';
+
+                    return $btn;
+                })
+                ->rawColumns(['image', 'action'])
+                ->make(true);
         }
         // return Datatables::of(Employee::query())->make(true);
     }
@@ -81,24 +89,33 @@ class EmployeeController extends Controller
             'name' => 'required',
             'email' => 'email|unique:users,email',
             'desig_id' => 'required',
+            'image' => 'sometimes|image',
         ]);
         DB::beginTransaction();
         try {
 
+            $user = new User;
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $password_plain = str_random(8);
 
-            $user            = new User;
-            $user->name      = $request->input('name');
-            $user->email     = $request->input('email');
-            $password_plain=str_random(8);
-            
-            $user->password  = Hash::make($password_plain);
+            $user->password = Hash::make($password_plain);
             $user->save();
-           
-            Employee::create($request->all()+ ['user_id' =>  $user->id]);
+
+            $emp = Employee::create($request->all() + ['user_id' => $user->id]);
+            if ($request->hasfile('image')) {
+                $image = $request->file('image');
+                $filename = time() . '.' . $image->getClientOriginalExtension();
+                $location = storage_path('app/public/images/') . $filename;
+
+                Image::make($image)->save($location);
+
+                $emp->image = $filename;
+                $emp->save();
+            }
             DB::commit();
             return redirect()->route('employee.index')
                 ->with('success', 'Employee Added successfully.');
-           
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -130,7 +147,7 @@ class EmployeeController extends Controller
     {
         //
         $designations = DB::table('designations')->get();
-        return view('employee.edit', compact('employee','designations'));
+        return view('employee.edit', compact('employee', 'designations'));
     }
 
     /**
@@ -147,9 +164,22 @@ class EmployeeController extends Controller
             'name' => 'required',
             'email' => 'required',
             'desig_id' => 'required',
+            'image' => 'sometimes|image',
         ]);
 
         $employee->update($request->all());
+        if ($request->hasfile('image')) {
+            Storage::disk('public')->delete("images/$employee->image");
+
+            $image = $request->file('image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $location = storage_path('app/public/images/') . $filename;
+
+            Image::make($image)->save($location);
+
+            $employee->image = $filename;
+            $employee->save();
+        }
 
         return redirect()->route('employee.index')
             ->with('success', 'Employee updated successfully');
@@ -164,7 +194,9 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         //
-        $article->delete();
+
+        Storage::disk('public')->delete("images/$employee->image");
+        $employee->delete();
 
         return redirect()->route('employee.index')
             ->with('success', 'employee deleted successfully');

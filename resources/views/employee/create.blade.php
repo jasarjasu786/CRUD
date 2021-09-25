@@ -49,7 +49,7 @@
                             </select> 
                         </div>
                         <div class="form-group">
-                            <input type="file" class="form-control " id="image">
+                            <input type="file" class="form-control " name="image" id="image">
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
