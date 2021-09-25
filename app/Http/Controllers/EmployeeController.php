@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Image;
 use Storage;
 use Yajra\Datatables\Datatables;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class EmployeeController extends Controller
 {
@@ -91,7 +93,7 @@ class EmployeeController extends Controller
             'image' => 'sometimes|image',
         ]);
         DB::beginTransaction();
-        try {
+        // try {
 
             $user = new User;
             $user->name = $request->input('name');
@@ -113,14 +115,21 @@ class EmployeeController extends Controller
                 $emp->save();
             }
             DB::commit();
+            $data = [
+                'name' => $request->get('name'),
+                'email' => $request->get('email'),
+                'password' => $password_plain,
+                
+                ];
+               Mail::to($data['email'])->send(new WelcomeMail($data));
             return redirect()->route('employee.index')
                 ->with('success', 'Employee Added successfully.');
 
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return redirect()->route('employee.index')
-                ->with('error', 'Something went wrong.');
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollback();
+        //     return redirect()->route('employee.index')
+        //         ->with('error', 'Something went wrong.');
+        // }
 
     }
 
