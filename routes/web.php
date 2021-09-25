@@ -18,3 +18,5 @@ Route::get('/', function () {
 });
 
 Route::resource('employee', 'EmployeeController');
+Route::get('employeeData', 'EmployeeController@employeeData');
+

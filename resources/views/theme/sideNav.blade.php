@@ -1,121 +1,66 @@
-<div class="navbar-default sidebar" role="navigation">
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-    <div class="sidebar-nav navbar-collapse">
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">Laravel  <sup>CRUD</sup></div>
+    </a>
 
-        <ul class="nav" id="side-menu">
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
 
-            <li class="sidebar-search">
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="index.html">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span></a>
+    </li>
 
-                <div class="input-group custom-search-form">
+    <!-- Divider -->
+    <hr class="sidebar-divider">
 
-                    <input type="text" class="form-control" placeholder="Search...">
-
-                    <span class="input-group-btn">
-
-                    <button class="btn btn-default" type="button">
-
-                        <i class="fa fa-search"></i>
-
-                    </button>
-
-                </span>
-
-                </div>
-
-                <!-- /input-group -->
-
-            </li>
-
-            <li>
-
-                <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-
-            </li>
-
-            <li>
-
-                <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
-
-                <ul class="nav nav-second-level">
-
-                    <li>
-
-                        <a href="flot.html">Flot Charts</a>
-
-                    </li>
-
-                    <li>
-
-                        <a href="morris.html">Morris.js Charts</a>
-
-                    </li>
-
-                </ul>
-
-                <!-- /.nav-second-level -->
-
-            </li>
-
-            <li>
-
-                <a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
-
-            </li>
-
-            <li>
-
-                <a href="forms.html"><i class="fa fa-edit fa-fw"></i> Forms</a>
-
-            </li>
-
-            <li>
-
-                <a href="#"><i class="fa fa-wrench fa-fw"></i> UI Elements<span class="fa arrow"></span></a>
-
-                <ul class="nav nav-second-level">
-
-                    <li>
-
-                        <a href="panels-wells.html">Panels and Wells</a>
-
-                    </li>
-
-                </ul>
-
-                <!-- /.nav-second-level -->
-
-            </li>
-
-            <li>
-
-                <a href="#"><i class="fa fa-files-o fa-fw"></i> Sample Pages<span class="fa arrow"></span></a>
-
-                <ul class="nav nav-second-level">
-
-                    <li>
-
-                        <a href="blank.html">Blank Page</a>
-
-                    </li>
-
-                    <li>
-
-                        <a href="login.html">Login Page</a>
-
-                    </li>
-
-                </ul>
-
-                <!-- /.nav-second-level -->
-
-            </li>
-
-        </ul>
-
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        
     </div>
 
-    <!-- /.sidebar-collapse -->
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Employee</span>
+        </a>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Resourses</h6>
+                <a class="collapse-item" href="{{ route('employee.index') }}">View</a>
+                <a class="collapse-item" href="{{ route('employee.create') }}">Create</a>
+            </div>
+        </div>
+    </li>
 
-</div>
+    <!-- Nav Item - Utilities Collapse Menu -->
 
-<!-- /.navbar-static-side -->
+    
+
+    
+  
+
+   
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+    
+
+</ul>
+<!-- End of Sidebar -->

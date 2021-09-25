@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\User;
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Yajra\Datatables\Datatables;
 
 class EmployeeController extends Controller
 {
@@ -14,10 +18,37 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
-        $employees = DB::table('employees')->paginate(3);
+        
 
-        return view('employees.index', ['employees' => $employees]);
+        return view('employee.index');
+    }
+    public function employeeData(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Employee::join('designations', 'employees.desig_id', '=', 'designations.id')
+            ->select(['employees.empl_id', 'employees.name', 'employees.email', 'employees.image', 'designations.designation']);
+            return Datatables::of($data)
+                    ->addColumn('image', function($row){
+                        
+                        if (($row->image!=NULL))
+                        $status= '<span class="badge badge-success">image</span>';
+                        else
+                        $status= ' <span class="badge badge-default">UoN</span>';
+                        return $status;
+            
+                    })
+                    ->addColumn('action', function($row){
+                        
+                           $btn = '<a class="btn btn-info btn-sm" href="'. route('employee.show', $row->empl_id) .'">Show</a>
+                           <a href="'. route('employee.edit', $row->empl_id) .'" class="edit btn btn-primary btn-sm">edit</a>
+                           <a href="javascript:void(0)" class="edit btn btn-danger btn-sm">Delete</a>';
+     
+                            return $btn;
+                    })
+                    ->rawColumns(['image','action'])
+                    ->make(true);
+        }
+        // return Datatables::of(Employee::query())->make(true);
     }
 
     /**
@@ -28,7 +59,8 @@ class EmployeeController extends Controller
     public function create()
     {
         //
-        return view('employees.create');
+        $designations = DB::table('designations')->get();
+        return view('employee.create', compact('designations'));
     }
 
     /**
@@ -42,14 +74,33 @@ class EmployeeController extends Controller
         //
         $request->validate([
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'email|unique:users,email',
             'desig_id' => 'required',
-        ]);        
+        ]);
+        DB::beginTransaction();
+        try {
 
-        Employee::create($request->all());
 
-        return redirect()->route('employees.index')
-        ->with('success','Employee Added successfully.');
+            $user            = new User;
+            $user->name      = $request->input('name');
+            $user->email     = $request->input('email');
+            $password_plain=str_random(8);
+            
+            $user->password  = Hash::make($password_plain);
+            $user->save();
+           
+            Employee::create($request->all()+ ['user_id' =>  $user->id]);
+            DB::commit();
+            return redirect()->route('employee.index')
+                ->with('success', 'Employee Added successfully.');
+           
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return redirect()->route('employee.index')
+                ->with('error', 'Something went wrong.');
+        }
+
     }
 
     /**
@@ -61,6 +112,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         //
+        return view('employee.show', compact('employee'));
     }
 
     /**
@@ -72,6 +124,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         //
+        return view('employee.edit', compact('employee'));
     }
 
     /**
@@ -84,6 +137,16 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'desig_id' => 'required',
+        ]);
+
+        $article->update($request->all());
+
+        return redirect()->route('employee.index')
+            ->with('success', 'Employee updated successfully');
     }
 
     /**
@@ -95,5 +158,9 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         //
+        $article->delete();
+
+        return redirect()->route('employee.index')
+            ->with('success', 'employee deleted successfully');
     }
 }
