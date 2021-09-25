@@ -47,8 +47,7 @@ class EmployeeController extends Controller
                 })
                 ->addColumn('action', function ($row) {
 
-                    $btn = '<a class="btn btn-info btn-sm" href="' . route('employee.show', $row->empl_id) . '">Show</a>
-                           <a href="' . route('employee.edit', $row->empl_id) . '" class="edit btn btn-primary btn-sm">edit</a>
+                    $btn = '<a href="' . route('employee.edit', $row->empl_id) . '" class="edit btn btn-primary btn-sm">edit</a>
                            <form action="' . route('employee.destroy', $row->empl_id) . ') }}" method="POST">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
