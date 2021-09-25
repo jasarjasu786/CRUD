@@ -93,7 +93,7 @@ class EmployeeController extends Controller
             'image' => 'sometimes|image',
         ]);
         DB::beginTransaction();
-        // try {
+        try {
 
             $user = new User;
             $user->name = $request->input('name');
@@ -125,11 +125,11 @@ class EmployeeController extends Controller
             return redirect()->route('employee.index')
                 ->with('success', 'Employee Added successfully.');
 
-        // } catch (\Throwable $th) {
-        //     DB::rollback();
-        //     return redirect()->route('employee.index')
-        //         ->with('error', 'Something went wrong.');
-        // }
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return redirect()->route('employee.index')
+                ->with('error', 'Something went wrong.');
+        }
 
     }
 
@@ -205,6 +205,7 @@ class EmployeeController extends Controller
 
         Storage::disk('public')->delete("images/$employee->image");
         $employee->delete();
+        User::where('id', $employee->user_id)->delete();
 
         return redirect()->route('employee.index')
             ->with('success', 'employee deleted successfully');
