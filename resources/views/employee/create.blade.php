@@ -32,7 +32,7 @@
                         </div>
                         @endif
                     </div>
-                    <form class="user" action="{{ route('employee.store') }}" method="POST">
+                    <form class="user" action="{{ route('employee.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group ">
                                 <input type="text" class="form-control"  placeholder="Name" name="name" id="name">   

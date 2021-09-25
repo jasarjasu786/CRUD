@@ -25,15 +25,20 @@ class EmployeeController extends Controller
     public function employeeData(Request $request)
     {
         if ($request->ajax()) {
-            $data = Employee::join('designations', 'employees.desig_id', '=', 'designations.id')
-            ->select(['employees.empl_id', 'employees.name', 'employees.email', 'employees.image', 'designations.designation']);
+            // $data = Employee::join('designations', 'employees.desig_id', '=', 'designations.id')
+            // ->select(['employees.empl_id', 'employees.name', 'employees.email', 'employees.image', 'designations.designation']);
+            $data=Employee::with('designation', 'designation')->get();
+            
             return Datatables::of($data)
+                    ->addColumn('designation', function($row){
+                        return $row->designation->designation;       
+                    })
                     ->addColumn('image', function($row){
                         
                         if (($row->image!=NULL))
-                        $status= '<span class="badge badge-success">image</span>';
+                        $status= '<img class="rounded-circle" src="theme/img/undraw_profile.svg" alt="...">';
                         else
-                        $status= ' <span class="badge badge-default">UoN</span>';
+                        $status= '<img class="rounded-circle" src="theme/img/undraw_profile.svg" alt="...">';
                         return $status;
             
                     })
@@ -124,7 +129,8 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         //
-        return view('employee.edit', compact('employee'));
+        $designations = DB::table('designations')->get();
+        return view('employee.edit', compact('employee','designations'));
     }
 
     /**
@@ -143,7 +149,7 @@ class EmployeeController extends Controller
             'desig_id' => 'required',
         ]);
 
-        $article->update($request->all());
+        $employee->update($request->all());
 
         return redirect()->route('employee.index')
             ->with('success', 'Employee updated successfully');

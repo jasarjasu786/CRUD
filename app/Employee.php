@@ -12,6 +12,11 @@ class Employee extends Model
     protected $fillable = [
         'name','email', 'user_id','desig_id','image',
     ];
+
+    public function designation()
+    {
+        return $this->hasOne('App\Designation', 'id', 'desig_id');
+    }
     
 }
 
